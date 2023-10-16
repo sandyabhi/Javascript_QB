@@ -50,18 +50,77 @@
     // let ans = arr.reduce((acc, cur) => {
     //     return acc + cur
     // }, 0)
-    
+    // Syntax: arr.reduce(function(total, currentValue, currentIndex, arr), initialValue)
+
     Array.prototype.myReduce = function(cb , initialValue) {
         let acc = initialValue;
         for(let i = 0; i < this.length; i++){
-            acc = acc ? cb(acc, this[i]) : this[i];
+            acc = acc ? cb(acc, this[i], i, this) : this[i];
         }
         
         return acc;
     }
         
-    console.log(arr.myReduce((acc, cur) => acc+cur));
-    console.log(arr.myReduce((acc, cur) => acc+cur , 2));
+    console.log(arr.myReduce((acc, cur) => acc+cur)); // 15
+    console.log(arr.myReduce((acc, cur) => acc+cur , 2));  // 17
+```
+
+### Polyfill for the call function
+
+___ The call() method takes arguments separately. fn.call(obj, "arg1", "arg2", "arg3") ___
+
+```javascript
+    const person1 = {name: "Sandeep"};
+    const person2 = {name: "Abhishek"};
+    
+    function printSection(section){
+        console.log(`${this.name} is in class 12-${section}.`);
+    }
+    
+    Function.prototype.myCall = function(obj, ...args){
+        if(typeof this !== 'function'){
+            throw new Error("Not Callable");
+        }
+        
+        obj.fn = this;
+        
+        obj.fn(args);
+    } 
+    
+    printSection.myCall(person1, 'C');  // Sandeep is in class 12-C. 
+    printSection.myCall(person2, 'A');  // Abhishek is in class 12-A.
+```
+
+
+### Polyfill for the apply function
+
+___ The apply() method takes arguments as an array. fn.call(obj, ["arg1", "arg2", "arg3"]) ___
+
+```javascript
+    const person1 = {name: "Sandeep"};
+    const person2 = {name: "Abhishek"};
+    
+    function printStudent(section, background){
+        console.log(`${this.name} is in class 12-${section}, background = ${background}.`);
+    }
+    
+    Function.prototype.myApply = function(obj, args){
+        if(typeof this !== 'function'){
+            throw new Error("Not Callable");
+        }
+        
+        if (!Array.isArray(args)) {
+            throw new Error("TypeError: CreateListFromArrayLike called on non-object");
+        }
+
+        
+        obj.fn = this;
+        
+        obj.fn(...args);
+    } 
+    
+    printStudent.myApply(person1, ['C', "Science"]);  // Sandeep is in class 12-C, background = Science.
+    printStudent.myApply(person2, ['A', "Arts"]);  // Sandeep is in class 12-C, background = Science.
 ```
 
 
