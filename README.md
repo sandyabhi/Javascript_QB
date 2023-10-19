@@ -123,5 +123,34 @@ ___ The apply() method takes arguments as an array. fn.call(obj, ["arg1", "arg2"
     printStudent.myApply(person2, ['A', "Arts"]);  // Sandeep is in class 12-C, background = Science.
 ```
 
+### Polyfill for the bind function
+
+```javascript
+    const person1 = {name: "Sandeep"};
+    const person2 = {name: "Abhishek"};
+    
+    function printStudent(section, background){
+        console.log(`${this.name} is in class 12-${section}, background = ${background}.`);
+    }
+    
+    Function.prototype.myBind = function(obj, ...args){
+        if(typeof this !== 'function'){
+            throw new Error("Not Callable");
+        }
+        
+        obj.fn = this;
+        
+        return function(...newArgs){
+            return obj.fn(...args, ...newArgs);
+        }
+    } 
+    
+    const func = printStudent.myBind(person1, 'C');
+    func("Science"); // Sandeep is in class 12-C, background = Science. 
+    
+    const func2 = printStudent.myBind(person2, 'A', "Arts");
+    func2(); // Abhishek is in class 12-A, background = Arts.
+```
+
 
 
