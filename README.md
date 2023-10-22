@@ -153,4 +153,119 @@ ___ The apply() method takes arguments as an array. fn.call(obj, ["arg1", "arg2"
 ```
 
 
+### Polyfill for the Promise
+
+```javascript
+    function myPromise(executor){
+        let onResolve, onReject, isFullfilled = false, isRejected = false, isCalled = false, value;
+        
+        function resolve(val){
+            isFullfilled = true;
+            value = val;
+            
+            if(typeof onResolve === 'function'){
+                onResolve(val);
+                isCalled = true;
+            };
+        }
+        
+        function reject(val){
+            isRejected = true;
+            value = val;
+            
+            if(typeof onResolve === 'function'){
+                onReject(val);
+                isCalled = true;
+            };
+        }
+        
+        this.then = function(cb){
+            onResolve = cb;
+            
+            if(isFullfilled && !isCalled){
+                isCalled = true;
+                onResolve(value)
+            }
+            
+            return this;
+        }
+        
+        this.catch = function(cb){
+            onReject = cb;
+            
+            if(isRejected && !isCalled){
+                isCalled = true;
+                onReject(value)
+            }
+            
+            return this;
+        }
+        
+        try{
+            executor(resolve, reject)   
+        }catch(error){
+            reject(error)
+        }
+    }
+    
+    const promise = new myPromise((resolve, reject) => {
+        resolve(5)
+    })
+    
+    promise.then((res) => {
+        console.log(res);
+    })
+    .catch((err) => console.log(err));
+```
+
+### Polyfill for the Promise.all()
+
+```javascript
+  function func1(){
+        return new Promise((resolve, reject) => {
+            resolve("Hello");
+        })
+    }
+    function func2(){
+        return new Promise((resolve, reject) => {
+            resolve("World");
+        })
+    }
+    function func3(val){
+        return new Promise((resolve, reject) => {
+            resolve(val);
+        })
+    }
+    
+    Promise.promiseAll = (promises) => {
+        return new Promise((resolve, reject) => {
+            const result = [];
+            
+            if(!promises.length){
+                resolve(result);
+                return;
+            }
+            
+            let pending = promises.length;
+            
+            promises.forEach((promise, idx) => {
+                Promise.resolve(promise).then((res) => {
+                    result[idx] = res;
+                    
+                    pending--;
+                    
+                    if(pending === 0){
+                        resolve(result);
+                    }
+                }, reject)
+            })
+        })
+    } 
+    
+    Promise.promiseAll([
+        func1(), func2(), func3("Sandeep")
+    ]).then((res) => console.log(res))
+```
+
+
 
