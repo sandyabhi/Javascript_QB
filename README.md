@@ -269,3 +269,31 @@ ___ The apply() method takes arguments as an array. fn.call(obj, ["arg1", "arg2"
 
 
 
+### Polyfill for the Promise.all()
+
+```javascript
+     let arr = [1, 2, [3, [4, 5]]];
+    // console.log(arr.flat(2)) // [ 1, 2, 3, 4, 5 ]
+    
+    Array.prototype.myFlat = function(depth){
+        let res = [];
+        if(!Array.isArray(this)){
+            throw new Error(`${this}.myFlat is not a function`);
+        }
+        
+        this.forEach((el) => {
+            if(Array.isArray(el) && depth > 0){
+                res.push(...el.myFlat(depth-1));
+            }else{
+                res.push(el);
+            }
+        })
+        
+        return res;
+    }
+    
+    console.log(arr.myFlat(2)); // [ 1, 2, 3, 4, 5 ]
+```
+
+
+
