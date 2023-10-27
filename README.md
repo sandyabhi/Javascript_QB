@@ -269,7 +269,7 @@ ___ The apply() method takes arguments as an array. fn.call(obj, ["arg1", "arg2"
 
 
 
-### Polyfill for the Promise.all()
+### Polyfill for the flat
 
 ```javascript
      let arr = [1, 2, [3, [4, 5]]];
